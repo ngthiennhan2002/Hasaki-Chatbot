@@ -37,7 +37,7 @@ def gemini_text2sql_execution(user_query, df_list, df_names):
     # User query
     user_query += str(tables)
     
-    category_query = user_query + ". Tìm category được nêu trong câu trên và chỉ nêu ra category. Nếu không tìm được category thì trả về None"
+    category_query = user_query + ". Tìm category được nêu trong câu trên và chỉ nêu ra category."
     
     # Text-to-SQL execution
     genai.configure(api_key=GEMINI_API_KEY)
@@ -45,11 +45,12 @@ def gemini_text2sql_execution(user_query, df_list, df_names):
     
     category = model.generate_content(category_query)
     category = str(response_processing(response=category)).lower()
+    print(category)
     
     user_query += f"Chỉ trả về kết quả mã SQL, không trả về bất cứ thông tin nào khác.\
         Ghi liền một chuỗi không xuống dòng nhưng vẫn giữ SPACE.\
         Trường hợp nếu chỉ hỏi Sản phẩm nào thì trả về tất cả thông tin SELECT *.\
-        Nhận biết loại sản phẩm '{category}' trong câu input -> thêm vào WHERE category LIKE '%{category}%' OR WHERE vn_name LIKE '%{category}%' OR WHERE en_name LIKE '%{category}%'\
+        Nhận biết loại sản phẩm '{category}' trong câu input -> thêm vào câu sau: WHERE category REGEXP '\\bmặt nạ\\b' OR WHERE vn_name REGEXP '\\bmặt nạ\\b' OR WHERE en_name REGEXP '\\bmặt nạ\\b'\
         với bước nhận biết đầu tiên là quan trọng nhất"
     response = model.generate_content(user_query)
     
