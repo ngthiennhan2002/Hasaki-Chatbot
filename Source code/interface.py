@@ -81,6 +81,8 @@ def create_interface(placeholder, df_list, df_names):
                 sql_query = text2sql.gemini_text2sql_execution(user_query=user_query, df_list=df_list, df_names=df_names)
                 if "LIMIT" not in sql_query:
                     sql_query += " LIMIT 5"
+                if '%' in sql_query:
+                    sql_query = sql_query.replace('%', '%%')
                 df_result = db_connection.read_sql(sql_query=sql_query)
                 
                 print(sql_query)

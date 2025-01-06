@@ -39,6 +39,6 @@ def read_sql(sql_query):
         # Save to SQL, if any data exists then replace the old data
         df_result = pd.read_sql(sql_query, con=engine)
         return df_result
-    except:
-        print("Error while accessing database")
+    except Exception as e:
+        print(f"Error: {e}")
         return None

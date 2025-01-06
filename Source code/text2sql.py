@@ -36,14 +36,21 @@ def gemini_text2sql_execution(user_query, df_list, df_names):
         
     # User query
     user_query += str(tables)
-    user_query += "Chỉ trả về kết quả mã SQL, không trả về bất cứ thông tin nào khác.\
-        Ghi liền một chuỗi không xuống dòng nhưng vẫn giữ SPACE.\
-        Trường hợp nếu chỉ hỏi Sản phẩm nào thì trả về tất cả thông tin SELECT *.\
-        Nếu trong yêu cầu dó 'mặt nạ' thì thêm vào WHERE category IN ('mặt nạ'), tương tự với các category sản phẩm khác."
+    
+    category_query = user_query + ". Tìm category được nêu trong câu trên và chỉ nêu ra category. Nếu không tìm được category thì trả về None"
     
     # Text-to-SQL execution
     genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel("gemini-1.5-flash")
+    
+    category = model.generate_content(category_query)
+    category = str(response_processing(response=category)).lower()
+    
+    user_query += f"Chỉ trả về kết quả mã SQL, không trả về bất cứ thông tin nào khác.\
+        Ghi liền một chuỗi không xuống dòng nhưng vẫn giữ SPACE.\
+        Trường hợp nếu chỉ hỏi Sản phẩm nào thì trả về tất cả thông tin SELECT *.\
+        Nhận biết loại sản phẩm '{category}' trong câu input -> thêm vào WHERE category LIKE '%{category}%' OR WHERE vn_name LIKE '%{category}%' OR WHERE en_name LIKE '%{category}%'\
+        với bước nhận biết đầu tiên là quan trọng nhất"
     response = model.generate_content(user_query)
     
     # Processing response to get text
