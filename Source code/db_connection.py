@@ -1,4 +1,3 @@
-import mysql.connector
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
@@ -42,3 +41,4 @@ def read_sql(sql_query):
         return df_result
     except:
         print("Error while accessing database")
+        return None

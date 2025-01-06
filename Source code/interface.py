@@ -5,8 +5,9 @@ import text2sql
 
 questions = []
 answers = []
+num_answers = []
 
-def show_chat(questions, answers):
+def show_chat(questions, answers, num_answers):
     product_box_style = """
     <style>
         .product-box {
@@ -49,6 +50,8 @@ def show_chat(questions, answers):
         </div>
         """, unsafe_allow_html=True)
 
+        st.text(f"Found {num_answers[index]} result(s).")
+        
         # Display answers
         st.markdown(product_box_style, unsafe_allow_html=True)
         answer = answers[index]
@@ -76,35 +79,46 @@ def create_interface(placeholder, df_list, df_names):
 
                 # Run Text to SQL (assume text2sql.gemini_text2sql_execution is valid)
                 sql_query = text2sql.gemini_text2sql_execution(user_query=user_query, df_list=df_list, df_names=df_names)
+                if "LIMIT" not in sql_query:
+                    sql_query += " LIMIT 5"
                 df_result = db_connection.read_sql(sql_query=sql_query)
                 
-                full_answer = ""
-
-                # Get the answer and add to the session state
-                for index, product in df_result.iterrows():
-                    full_answer += f"""
-                        <div class="product-box">
-                            <div style="display: flex; align-items: center;">
-                                <img src="{product['image']}" alt="Product Image" style="width:300px; height:300px">
-                                <div class="product-info">
-                                    <a href="{product['link']}" target="_blank"><h3>{product['vn_name']}</h3></a>
-                                    <p><strong>EN Name:</strong> {product['en_name']}</p>
-                                    <p><strong>Brand:</strong> {product['brand']}</p>
-                                    <p><strong>Category:</strong> {product['category']}</p>
-                                    <p><strong>Actual Price:</strong> {product['actual_price']} VNĐ</p>
-                                    <p><strong>Discount Price:</strong> {product['discount_price']} VNĐ</p>
-                                    <p><strong>Discount Rate:</strong> {product['discount_rate']}%</p>
-                                    <p><strong>Star:</strong> {product['star']}</p>
-                                    <p><strong>Rating:</strong> {product['rating']}</p>
-                                    <p><strong>Sold:</strong> {product['sold']}</p>
+                print(sql_query)
+                
+                if df_result is None:
+                    full_answer = "Error accessing the database."
+                    num_answers.append(0)
+                elif df_result.empty:
+                    full_answer = "Cannot find the items."
+                    num_answers.append(0)
+                else:
+                    full_answer = ""
+                    # Get the answer and add to the session state
+                    for index, product in df_result.iterrows():
+                        full_answer += f"""
+                            <div class="product-box">
+                                <div style="display: flex; align-items: center;">
+                                    <img src="{product['image']}" alt="Product Image" style="width:300px; height:300px">
+                                    <div class="product-info">
+                                        <a href="{product['link']}" target="_blank"><h3>{product['vn_name']}</h3></a>
+                                        <p><strong>EN Name:</strong> {product['en_name']}</p>
+                                        <p><strong>Brand:</strong> {product['brand']}</p>
+                                        <p><strong>Category:</strong> {product['category']}</p>
+                                        <p><strong>Actual Price:</strong> {product['actual_price']} VNĐ</p>
+                                        <p><strong>Discount Price:</strong> {product['discount_price']} VNĐ</p>
+                                        <p><strong>Discount Rate:</strong> {product['discount_rate']}%</p>
+                                        <p><strong>Star:</strong> {product['star']}</p>
+                                        <p><strong>Rating:</strong> {product['rating']}</p>
+                                        <p><strong>Sold:</strong> {product['sold']}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        """
+                            """
+                    num_answers.append(len(df_result))        
                 answers.append(full_answer)
                 
                 # Show the chat history
-                show_chat(questions, answers)
+                show_chat(questions, answers, num_answers)
     
             except Exception as e:
                 st.error(f"Error: {e}")

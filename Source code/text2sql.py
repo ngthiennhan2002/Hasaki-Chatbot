@@ -39,7 +39,7 @@ def gemini_text2sql_execution(user_query, df_list, df_names):
     user_query += "Chỉ trả về kết quả mã SQL, không trả về bất cứ thông tin nào khác.\
         Ghi liền một chuỗi không xuống dòng nhưng vẫn giữ SPACE.\
         Trường hợp nếu chỉ hỏi Sản phẩm nào thì trả về tất cả thông tin SELECT *.\
-        Nếu trong yêu cầu có cần tìm các loại sản phẩm như 'Nước hoa', 'mặt nạ',... thì tìm trong Category với phương thức 'in'."
+        Nếu trong yêu cầu dó 'mặt nạ' thì thêm vào WHERE category IN ('mặt nạ'), tương tự với các category sản phẩm khác."
     
     # Text-to-SQL execution
     genai.configure(api_key=GEMINI_API_KEY)

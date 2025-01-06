@@ -19,10 +19,13 @@ if __name__ == "__main__":
     # Rename df columns
     df_product.columns = [col.lower().replace(" ", "_") for col in df_product.columns]
     df_review.columns = [col.lower().replace(" ", "_") for col in df_review.columns]
+    
+    # Lower product categories
+    df_product['category'] = df_product['category'].str.lower()
 
     # Write Data to SQL
-    db_connection.write_to_sql(df=df_product, name='products')
-    db_connection.write_to_sql(df=df_review, name='reviews')
+    # db_connection.write_to_sql(df=df_product, name='products')
+    # db_connection.write_to_sql(df=df_review, name='reviews')
     
     # # # EInitialize DataFrame variables for querying
     df_list = [df_product, df_review]
