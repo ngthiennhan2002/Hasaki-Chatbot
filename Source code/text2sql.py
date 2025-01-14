@@ -1,7 +1,6 @@
 import requests
 from dotenv import load_dotenv
 import os
-import torch
 import google.generativeai as genai
 
 load_dotenv()
